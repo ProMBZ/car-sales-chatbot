@@ -6,9 +6,10 @@ from langchain.memory import ConversationBufferMemory
 from tavily import TavilyClient
 from dotenv import load_dotenv
 import os
-from langchain.tools import Tool # Corrected import
-# Page Title
-st.set_page_config(page_title="Used Car Sales Chatbot", page_icon="🚗")
+from langchain.tools import Tool
+
+# Ensure set_page_config is the first Streamlit command
+st.set_page_config(page_title="Used Car Sales Chatbot", page_icon="🚗", layout="wide") #Combined layout parameter
 
 # Load environment variables from .env file
 load_dotenv()
@@ -150,9 +151,6 @@ if "memory" not in st.session_state:
 
 agent = initialize_agent(tools, llm, agent=AgentType.CONVERSATIONAL_REACT_DESCRIPTION, verbose=True, memory=st.session_state.memory)
 
-# Streamlit UI - Modern Design
-st.set_page_config(page_title="Used Car Sales Chatbot", layout="wide")
-
 st.markdown(
     """
     <style>
@@ -210,7 +208,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-st.title("Used Car Sales Chatbot")
+st.title("🚗 Used Car Sales Chatbot")
 
 if "messages" not in st.session_state:
     st.session_state.messages = []

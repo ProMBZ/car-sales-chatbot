@@ -7,6 +7,8 @@ from tavily import TavilyClient
 from dotenv import load_dotenv
 import os
 from langchain.tools import Tool # Corrected import
+# Page Title
+st.set_page_config(page_title="Used Car Sales Chatbot", page_icon="🚗")
 
 # Load environment variables from .env file
 load_dotenv()
@@ -21,9 +23,6 @@ if not GOOGLE_API_KEY or not TAVILY_API_KEY:
 
 # Initialize Gemini 2.0 Flash LLM
 llm = ChatGoogleGenerativeAI(model="gemini-2.0-flash", temperature=0.7)
-
-# Page Title
-st.set_page_config(page_title="Used Car Sales Chatbot", page_icon="🚗")
 
 # Tavily Client
 tavily_client = TavilyClient(TAVILY_API_KEY)

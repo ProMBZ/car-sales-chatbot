@@ -4,7 +4,3 @@ google-generativeai
 tavily-python
 dotenv
 langchain-google-genai
-difflib
-markdown-it-py
-mdurl
-rich

@@ -154,12 +154,14 @@ agent = initialize_agent(tools, llm, agent=AgentType.CONVERSATIONAL_REACT_DESCRI
 st.markdown(
     """
     <style>
-    body {
+
+   body {
         font-family: 'Roboto', sans-serif;
         color: #e0e0e0; /* Light text */
         margin: 0;
         padding: 0;
     }
+
     .stApp {
         max-width: 1200px;
         margin: auto;
@@ -168,30 +170,42 @@ st.markdown(
     .st-eb {
         background-color: black; /* Darker card background */
         border-radius: 10px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+        box-shadow: 0 4px 8px rgb(255, 255, 255);
         padding: 2rem;
         margin-bottom: 2rem;
     }
     .st-bb {
-        background-color: #2a2a2a; /* Even darker message background */
+        background-color:rgb(9, 9, 9); /* Even darker message background */
         padding: 1rem;
         border-radius: 5px;
         margin-bottom: 1rem;
+        color: white /* White text color for messages */
     }
     .st-bb:last-child {
         margin-bottom: 0;
     }
-    .stTextInput>div>div>input {
+    /* Ensure markdown content in chat messages is white */
+    .st-bb p, .st-bb span, .st-bb div {
+        color: white;
+    }
+    .stTextInput > div > input {
         background-color: #333; /* Dark input background */
         border: 1px solid #555;
         border-radius: 5px;
         padding: 0.75rem;
         width: 100%;
-        color: #e0e0e0; /* Light input text */
+        color: #ffffff !important; /* Force input text color to white */
+        caret-color: #ffffff; /* Change caret color to white for better visibility */
+    }
+
+    /* Additional styles to ensure visibility */
+    .stTextInput > div > input:focus {
+        outline: none; /* Remove default outline */
+        border-color: #64b5f6; /* Change border color on focus */
     }
     .stButton>button {
         background-color: #64b5f6; /* Blue button */
-        color: #121212; /* Dark button text */
+        color:rgb(255, 255, 255); /* Dark button text */
         padding: 0.75rem 1.5rem;
         border: none;
         border-radius: 5px;
@@ -221,7 +235,6 @@ if prompt := st.chat_input("How can I assist you with your car needs today?"):
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
         st.markdown(prompt)
-
     with st.chat_message("assistant"):
         message_placeholder = st.empty()
         full_response = ""

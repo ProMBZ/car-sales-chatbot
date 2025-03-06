@@ -9,6 +9,7 @@ from tavily import TavilyClient
 from dotenv import load_dotenv
 import os
 from langchain.tools import Tool
+import re
 
 # Ensure set_page_config is the first Streamlit command
 st.set_page_config(page_title="Car Sales Chatbot", page_icon="🚗", layout="wide")
@@ -163,9 +164,9 @@ used_car_stock = {
         "mileage": 30000,
         "interior": "Premium leather, robust interior",
         "details": "2022 Land Rover Defender, off-road SUV, luxurious, robust, expedition package.",
-        "benefits": "Luxurious, off-road capable, robust and reliable."
+        "benefits": "Luxurious"
     },
-    "volvo xc90": {
+     "volvo xc90": {
         "price": 50000,
         "mileage": 36000,
         "interior": "Scandinavian leather, child booster seats",
@@ -173,7 +174,6 @@ used_car_stock = {
         "benefits": "Safe, spacious, luxurious and dependable."
     },
 }
-
 # Tavily Search Tool
 def tavily_search_with_images(query):
     try:
@@ -203,22 +203,22 @@ def compare_prices(car_model):
 
             try:
                 import re
-                prices = re.findall(r'\$\d+(?:,\d+)?', competitor_price_info)
+                prices = re.findall(r'\<span class="math-inline">\\d\+\(?\:,\\d\+\)?', competitor_price_info)
                 if prices:
-                    online_prices = [int(price.replace('$', '').replace(',', '')) for price in prices]
+                    online_prices = [int(price.replace('</span>', '').replace(',', '')) for price in prices]
                     if online_prices:
                         average_online_price = sum(online_prices) / len(online_prices)
                         price_difference = our_price - average_online_price
 
                         if price_difference < 0:
                             comparison_message = (f"Our {car_model.capitalize()} is priced at ${our_price:,}, "
-                                                   f"which is ${abs(price_difference):,.0f} less than the average online price. ")
+                                                  f"which is ${abs(price_difference):,.0f} less than the average online price. ")
                         elif price_difference > 0:
                             comparison_message = (f"Our {car_model.capitalize()} is priced at ${our_price:,}. "
-                                                   f"While online prices average ${average_online_price:,.0f}, we offer added value through our dealership's benefits. ")
+                                                  f"While online prices average ${average_online_price:,.0f}, we offer added value through our dealership's benefits. ")
                         else:
                             comparison_message = (f"Our {car_model.capitalize()} is competitively priced at ${our_price:,}, "
-                                                   "matching the average online price. ")
+                                                  "matching the average online price. ")
 
                         return (f"{comparison_message}It features {our_interior}. Check online prices here: "
                                 f"[{search_url}]({search_url}). We also offer [mention dealership benefits here].")
@@ -257,7 +257,7 @@ def get_car_details(car_model):
         if isinstance(search_results, dict) and search_results.get('images'):
             image_urls = search_results['images']
         detail_string = (
-            f"**Absolutely! We have a {car_model.capitalize()} available.**  \n\n"
+            f"**Absolutely! We have a {car_model.capitalize()} available.** \n\n"
             f"**Mileage:** {details['mileage']:,} miles  \n"
             f"**Interior:** {details['interior']}  \n"
             f"**Details:** {details['details']}  \n"
@@ -306,16 +306,15 @@ def show_inline_lead_form():
                 lead_form_placeholder.empty()  # Remove the form after submission
             else:
                 st.error("Please fill out all fields.")
-
-# LangChain Agent Setup
+                # LangChain Agent Setup
 tools = [
-    Tool(name="ComparePrices", func=lambda car_model: compare_prices(car_model), 
+    Tool(name="ComparePrices", func=lambda car_model: compare_prices(car_model),
          description="Compares used car prices with other dealers and provides links and interior details."),
-    Tool(name="GetCarDetails", func=lambda car_model: get_car_details(car_model), 
+    Tool(name="GetCarDetails", func=lambda car_model: get_car_details(car_model),
          description="Retrieves used car details, mileage, interior, and images."),
-    Tool(name="ListAvailableCars", func=lambda _: list_available_cars(), 
+    Tool(name="ListAvailableCars", func=lambda _: list_available_cars(),
          description="Lists all available used cars in stock."),
-    Tool(name="WhyBuyFromUs", func=lambda car_model: why_buy_from_us(car_model), 
+    Tool(name="WhyBuyFromUs", func=lambda car_model: why_buy_from_us(car_model),
          description="Explains why you should buy from us by comparing prices and highlighting exclusive benefits.")
 ]
 
@@ -436,8 +435,8 @@ if prompt := st.chat_input("How can I assist you with your car needs today?"):
             except Exception as e:
                 full_response = f"An error occurred: {e}"
                 message_placeholder.markdown(full_response)
-    st.session_state.messages.append({"role": "assistant", "content": full_response})
-    
+        st.session_state.messages.append({"role": "assistant", "content": full_response})
+
     # Check for trigger keywords and if the lead hasn't been submitted yet
     keywords = ["contact me", "whatsapp", "book", "interested", "call me", "reach me", "phone"]
     if any(keyword in prompt.lower() for keyword in keywords) and not st.session_state.lead_submitted:
